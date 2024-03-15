@@ -1,0 +1,24 @@
+{
+  "name": "flights-api",
+  "module": "src/server.ts",
+  "type": "module",
+  "scripts": {
+    "start:dev": "bun run --watch src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@elysiajs/swagger": "^0.8.5",
+    "@prisma/client": "5.10.2",
+    "@types/jsonwebtoken": "^9.0.6",
+    "bcryptjs": "^2.4.3",
+    "elysia": "^0.8.17",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.10.2"
+  }
+}

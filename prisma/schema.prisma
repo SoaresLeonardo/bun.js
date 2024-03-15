@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Flights {
+  id          Int      @id @default(autoincrement())
+  origin      String
+  destination String
+  departure   DateTime
+  airline     String
+  price       Float
+
+  reservations Reservation[]
+
+  @@map("flights")
+}
+
+enum UserRole {
+  ADMIN
+  PASSENGER
+
+  @@map("user_role")
+}
+
+enum CustomerRole {
+  MANAGER
+  CUSTOMER
+
+  @@map("customer_role")
+}
+
+enum OrderStatus {
+  PENDING
+  CANCELED
+  PROCESSING
+  DELIVERING
+  DELIVERED
+
+  @@map("order_status")
+}
+
+model Users {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole
+
+  reservations Reservation[]
+
+  @@map("users")
+}
+
+model Reservation {
+  id              Int      @id @default(autoincrement())
+  flightId        Int
+  passengerId     Int
+  seatNumber      Int
+  reservationDate DateTime @default(now())
+  Flights         Flights? @relation(fields: [flightsId], references: [id])
+  flightsId       Int?
+  Passenger       Users    @relation(fields: [passengerId], references: [id])
+
+  @@map("reservations")
+}
+
+model Customer {
+  id         Int          @id @default(autoincrement())
+  name       String
+  email      String
+  phone      String
+  role       CustomerRole
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  Order      Order[]
+  Evaluation Evaluation[]
+
+  @@map("customers")
+}
+
+model Restaurant {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+  managerId   Int
+  Order       Order[]
+  Product     Product[]
+  Menu        Menu[]
+  Evaluation  Evaluation[]
+
+  @@map("restaurants")
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  customerId   Int
+  restaurantId Int
+  status       OrderStatus
+  totalInCents Int
+  createdAt    DateTime    @default(now())
+
+  restaurant Restaurant   @relation(fields: [restaurantId], references: [id])
+  customer   Customer     @relation(fields: [customerId], references: [id])
+  OrderItems OrderItems[]
+
+  @@map("orders")
+}
+
+model OrderItems {
+  id           Int     @id @default(autoincrement())
+  order        Order   @relation(fields: [orderId], references: [id])
+  orderId      Int
+  product      Product @relation(fields: [productId], references: [id])
+  productId    Int
+  quantity     Int     @default(1)
+  priceInCents Int
+
+  @@map("order_items")
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  restaurantId Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+
+  restaurant Restaurant   @relation(fields: [restaurantId], references: [id])
+  OrderItem  OrderItems[]
+  Menu       Menu?        @relation(fields: [menuId], references: [id])
+  menuId     Int?
+
+  @@map("products")
+}
+
+model Evaluation {
+  id           Int        @id @default(autoincrement())
+  comment      String
+  createdAt    DateTime   @default(now())
+  customer     Customer   @relation(fields: [customerId], references: [id])
+  customerId   Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  rate         Int        @default(1)
+
+  @@map("evaluations")
+}
+
+model Menu {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  products     Product[]
+  rate         Int        @default(1)
+
+  @@map("menus")
+}
